@@ -75,6 +75,9 @@ class BleyTestCase(unittest.TestCase):
     def _assert_defer_action(self, action):
         self.assertEquals(action, "action=DEFER_IF_PERMIT")
 
+    def _assert_prepend_action(self, action):
+        self.assertRegexpMatches(action, r"action=PREPEND X-Greylist: delayed .* seconds by bley-.* at .*; .*")
+
     def test_incomplete_request(self):
         data = {
             'sender': 'root@example.com',
@@ -193,7 +196,7 @@ class BleyTestCase(unittest.TestCase):
 
         d3 = task.deferLater(reactor, 65, get_action, "127.0.0.1", 1337, data)
 
-        d3.addCallback(self._assert_dunno_action)
+        d3.addCallback(self._assert_prepend_action)
 
         return DeferredList([d, d2, d3])
 
