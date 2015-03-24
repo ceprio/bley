@@ -76,7 +76,7 @@ class BleyTestCase(unittest.TestCase):
         self.assertEquals(action, "action=DEFER_IF_PERMIT")
 
     def _assert_prepend_action(self, action):
-        self.assertRegexpMatches(action, r"action=PREPEND X-Greylist: delayed .* seconds by bley-.* at .*; .*")
+        self.assertEquals(action, "action=PREPEND")
 
     def test_incomplete_request(self):
         data = {
