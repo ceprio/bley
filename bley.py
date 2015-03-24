@@ -185,7 +185,8 @@ class BleyPolicy(PostfixPolicy):
             delta = datetime.datetime.now() - status[1]
             if delta > self.factory.settings.greylist_period + status[2] * self.factory.settings.greylist_penalty or delta > self.factory.settings.greylist_max:
                 data = {'delta': delta.total_seconds(), 'version': self.factory.settings.version, 'hostname': socket.gethostname(), 'date': datetime.datetime.now()}
-                action = 'PREPEND X-Greylist: delayed %(delta)s seconds by bley-%(version)s at %(hostname)s; %(date)s' % data
+                header = self.factory.settings.greylist_header % data
+                action = 'PREPEND %s' % header
                 query = "UPDATE bley_status SET status=0, last_action=%(now)s WHERE ip=%(client_address)s AND sender=%(sender)s AND recipient=%(recipient)s"
                 self.factory.good_cache[postfix_params['client_address']] = datetime.datetime.now()
             else:

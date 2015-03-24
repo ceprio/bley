@@ -224,6 +224,7 @@ def bley_start():
         'dbpass': None,
         'dbport': '0',
         'cache_valid': '60',
+        'greylist_header': 'X-Greylist: delayed %(delta)s seconds by bley-%(version)s at %(hostname)s; %(date)s',
     }
     config = SafeConfigParser(defaults)
     config.read(settings.conffile)
@@ -261,6 +262,7 @@ def bley_start():
     exec "import %s as databasemodule" % database in globals(), locals()
     settings.database = databasemodule
     settings.reject_msg = config.get('bley', 'reject_msg')
+    settings.greylist_header = config.get('bley', 'greylist_header', raw=True)
 
     settings.dnswls = [d.strip() for d in config.get('bley', 'dnswls').split(',') if d.strip() != ""]
     settings.dnsbls = [d.strip() for d in config.get('bley', 'dnsbls').split(',') if d.strip() != ""]
