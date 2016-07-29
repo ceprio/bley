@@ -26,7 +26,7 @@ class PostfixPolicyClient(PostfixPolicy):
             if len(actionline) == 2:
                 self.reason = actionline[1]
         if line == "":
-            self.factory.action_received(self.action)
+            self.factory.action_received(self.action, self.reason)
             self.transport.loseConnection()
 
 
@@ -40,7 +40,7 @@ class PostfixPolicyClientFactory(ClientFactory):
     def action_received(self, action, text=""):
         if self.deferred is not None:
             d, self.deferred = self.deferred, None
-            d.callback(action)
+            d.callback({'action': action, 'text': text})
 
     def clientConnectionFailed(self, connector, reason):
         if self.deferred is not None:
@@ -69,14 +69,16 @@ class BleyTestCase(unittest.TestCase):
             self.ipv6generator = self.ipv6net.iterhosts()
             return self.ipv6generator.next()
 
-    def _assert_dunno_action(self, action):
-        self.assertEquals(action, "action=DUNNO")
+    def _assert_dunno_action(self, data):
+        self.assertEquals(data['action'], "action=DUNNO")
 
-    def _assert_defer_action(self, action):
-        self.assertEquals(action, "action=DEFER_IF_PERMIT")
+    def _assert_defer_action(self, data):
+        self.assertEquals(data['action'], "action=DEFER_IF_PERMIT")
+        self.assertEquals(data['text'], "greylisted, try again later")
 
-    def _assert_prepend_action(self, action):
-        self.assertEquals(action, "action=PREPEND")
+    def _assert_prepend_action(self, data):
+        self.assertEquals(data['action'], "action=PREPEND")
+        self.assertTrue(data['text'].startswith('X-Greylist: delayed'))
 
     def test_incomplete_request(self):
         data = {
