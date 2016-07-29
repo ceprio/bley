@@ -10,24 +10,30 @@ python:
 env:
   # oldest working via pypi
   - TWISTED_VERSION=9.0.0
-  # Ubuntu Lucid
-  - TWISTED_VERSION=10.0.0
   # Debian Squeeze
   - TWISTED_VERSION=10.1.0
   # Ubuntu Precise
   - TWISTED_VERSION=11.1.0
   # Debian Wheezy
   - TWISTED_VERSION=12.0.0
-  # Ubuntu Quantal, RedHat RHEL 7
+  # Red Hat Enterprise Linux 7
   - TWISTED_VERSION=12.2.0
-  # Ubuntu Saucy
-  - TWISTED_VERSION=13.0.0
-  # Ubuntu Trusty, Utopic, Wheezy Backports
+  # Ubuntu Trusty, Debian Wheezy Backports
   - TWISTED_VERSION=13.2.0
-  # Debian Jessie
+  # Debian Jessie, Ubuntu Vivid
   - TWISTED_VERSION=14.0.2
-  # latest upstream
-  - TWISTED_VERSION=15.0.0
+  # Ubuntu Wily
+  - TWISTED_VERSION=15.2.1
+  # Debian Strech, Ubuntu Xenial
+  - TWISTED_VERSION=16.0
+  # Debian Sid
+  - TWISTED_VERSION=16.1.1
+matrix:
+  exclude:
+    - python: "2.6"
+      env: TWISTED_VERSION=16.0
+    - python: "2.6"
+      env: TWISTED_VERSION=16.1.1
 # command to install dependencies
 install:
   - pip install pep8
@@ -36,9 +42,14 @@ install:
   - pip install MySQL-python
   - pip install matplotlib
   - pip install -r requirements.txt --use-mirrors
-  - sudo wget -O/usr/local/bin/my_virtualenv https://raw.github.com/evgeni/my_virtualenv/master/my_virtualenv
-  - sudo chmod +x /usr/local/bin/my_virtualenv
+  - mkdir -p $HOME/bin/
+  - wget -O $HOME/bin/my_virtualenv https://raw.github.com/evgeni/my_virtualenv/master/my_virtualenv
+  - chmod +x $HOME/bin/my_virtualenv
 # command to run tests
 script:
-  - sudo python setup.py install
-  - make test
+  - python setup.py install --root=/tmp/bley
+  - PATH=$HOME/bin:$PATH make test
+sudo: false
+cache:
+  directories:
+    - $HOME/.cache/pip
